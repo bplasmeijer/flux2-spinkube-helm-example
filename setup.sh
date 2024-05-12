@@ -3,6 +3,9 @@
 # Install k3d
 curl -s https://raw.githubusercontent.com/rancher/k3d/main/install.sh | bash
 
+# Delete the default k3d cluster if exists
+k3d cluster delete wasm-cluster
+
 # Create a k3d cluster with the containerd-shim-spin image
 k3d cluster create wasm-cluster \
   --image ghcr.io/spinkube/containerd-shim-spin/k3d:v0.14.1 \

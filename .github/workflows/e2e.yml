@@ -1,0 +1,44 @@
+name: e2e
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [ 'main', 'release/**' ]
+  pull_request:
+    branches: [ 'main', 'release/**' ]
+    paths-ignore: [ 'docs/**', 'rfcs/**' ]
+
+permissions:
+  contents: read
+
+jobs:
+  e2e-amd64-kubernetes:
+    
+    runs-on: ubuntu-latest
+    services:
+      registry:
+        image: registry:2
+        ports:
+          - 5000:5000
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4.0.0
+      
+      - name: install flux cli
+        run: |
+          curl -s https://fluxcd.io/install.sh | sudo FLUX_VERSION=0.37.0 bash
+      
+      # make kind test cluster
+      - name: create-kind
+        run: |
+
+          ./scripts/kind.sh -t 1.25.11
+
+      - name: install flux manifests & check
+        run: |
+          flux install --manifests flux-system/
+          flux check
+
+      - name: delete-kind
+        run: |
+          ./scripts/cleanup.sh 
